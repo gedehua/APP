@@ -1,12 +1,15 @@
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
-
-Vue.config.productionTip = false;
-
 // element-ui
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
+
+// icon
+import "@/assets/fonts/iconfont.css";
+
+Vue.config.productionTip = false;
+
 Vue.use(ElementUI);
 
 // $bus

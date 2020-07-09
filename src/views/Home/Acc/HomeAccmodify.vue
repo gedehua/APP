@@ -3,26 +3,23 @@
     <div class="home-acc-modify-box">
       <!-- titleP 插槽 组件 -->
       <titleP>修改密码</titleP>
-      <el-form
-        :model="ruleForm"
-        status-icon
-        :rules="rules"
-        ref="ruleForm"
-        label-width="100px"
-        class="demo-ruleForm"
-      >
-        <el-form-item label="原密码" prop="oldPass">
-          <el-input v-model.number="ruleForm.oldPass"></el-input>
+      <el-form :model="changePwd" status-icon :rules="rules" ref="changePwd" label-width="100px">
+        <!-- 原密码 -->
+        <el-form-item label="原密码" prop="oldPwd">
+          <el-input type="password" v-model="changePwd.oldPwd"></el-input>
         </el-form-item>
-        <el-form-item label="新密码" prop="pass">
-          <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+        <!-- 新密码 -->
+        <el-form-item label="新密码" prop="newPwd">
+          <el-input type="password" v-model="changePwd.newPwd" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="确认新密码" prop="checkPass">
-          <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+        <!-- 确定新密码 -->
+        <el-form-item label="确认新密码" prop="definePwd">
+          <el-input type="password" v-model="changePwd.definePwd" autocomplete="off"></el-input>
         </el-form-item>
+        <!-- 按钮组 -->
         <el-form-item>
-          <el-button size="small" type="primary" @click="submitForm('ruleForm')">提交</el-button>
-          <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
+          <el-button size="small" type="primary" @click="submitForm">提交</el-button>
+          <el-button size="small" @click="resetForm">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -30,73 +27,83 @@
 </template>
 
 <script>
+// 组件
 import titleP from "@/components/Home/title.vue";
 export default {
   components: { titleP },
   data() {
-    var checkAge = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error("原密码不能为空"));
-      }
-      setTimeout(() => {
-        if (!Number.isInteger(value)) {
-          callback(new Error("请输入数字值"));
-        } else {
-          if (value < 18) {
-            callback(new Error("必须年满18岁"));
-          } else {
-            callback();
-          }
-        }
-      }, 1000);
-    };
-    var validatePass = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入新密码"));
-      } else {
-        if (this.ruleForm.checkPass !== "") {
-          this.$refs.ruleForm.validateField("checkPass");
-        }
-        callback();
-      }
-    };
     var validatePass2 = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请再次输入新密码"));
-      } else if (value !== this.ruleForm.pass) {
+      } else if (value !== this.changePwd.newPwd) {
         callback(new Error("两次输入新密码不一致!"));
       } else {
         callback();
       }
     };
     return {
-      ruleForm: {
-        pass: "",
-        checkPass: "",
-        oldPass: "",
-        // 原始密码
-        passwrod: ""
+      changePwd: {
+        oldPwd: "", //原密码
+        newPwd: "", //新密码
+        definePwd: "" //确定新密码
       },
       rules: {
-        pass: [{ validator: validatePass, trigger: "blur" }],
-        checkPass: [{ validator: validatePass2, trigger: "blur" }],
-        oldPass: [{ validator: checkAge, trigger: "blur" }]
+        oldPwd: [{ required: true, message: "请输入原密码", trigger: "blur" }],
+        newPwd: [
+          { required: true, message: "请输入新密码", trigger: "blur" },
+          { min: 6, max: 12, message: "长度在 3 到 6 个字符", trigger: "blur" }
+        ],
+        definePwd: [
+          { required: true, message: "请再次输入新密码", trigger: "blur" },
+          { min: 6, max: 12, message: "长度在 3 到 6 个字符", trigger: "blur" },
+          { validator: validatePass2, trigger: "blur" }
+        ]
       }
     };
   },
   methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate(valid => {
+    // 提交
+    submitForm() {
+      this.$refs.changePwd.validate(valid => {
         if (valid) {
-          alert("submit!");
+          const h = this.$createElement;
+          this.$msgbox({
+            title: "消息",
+            message: h("p", null, [
+              h("span", null, "恭喜你！修改成功，请重登录")
+            ]),
+            showClose: false,
+            confirmButtonText: "确定",
+            beforeClose: (action, instance, done) => {
+              if (action === "confirm") {
+                instance.confirmButtonLoading = true;
+                instance.confirmButtonText = "执行中...";
+                setTimeout(() => {
+                  // 修改成功后跳到登录页面
+                  this.$router.push("/login");
+                  done();
+                  // setTimeout(() => {
+                  //   instance.confirmButtonLoading = false;
+                  // }, 300);
+                }, 500);
+              } else {
+                done();
+              }
+            }
+          }).then(action => {
+            this.$message({
+              type: "success",
+              message: "请登录: " + action
+            });
+          });
         } else {
-          console.log("error submit!!");
           return false;
         }
       });
     },
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
+    // 重置
+    resetForm() {
+      this.$refs.changePwd.resetFields();
     }
   }
   // bus接受登录时的密码
@@ -111,7 +118,7 @@ export default {
     height: 400px;
     width: 100%;
     background: #fff;
-    .demo-ruleForm {
+    .el-form {
       width: 400px;
     }
   }

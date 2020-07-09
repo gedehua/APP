@@ -1,5 +1,6 @@
 <template>
   <div class="home-commondity-classify">
+    <!-- 商品分类 -->
     <div class="home-commondity-classify-box">
       <titleP>商品分类</titleP>
       <!-- 表格 -->
@@ -10,8 +11,8 @@
         @current-change="handleCurrentChange"
         style="width: 100%"
       >
-        <el-table-column label="序号" type="index" width="50"></el-table-column>
-        <el-table-column property="name" label="商品名称" width="120"></el-table-column>
+        <el-table-column label="序号" type="index" width="150"></el-table-column>
+        <el-table-column property="name" label="商品名称" width="350"></el-table-column>
         <!-- 开关按钮 -->
         <el-table-column label="是否启用">
           <el-tooltip :content="'Switch value: ' + value" placement="top">
@@ -31,6 +32,18 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页 -->
+      <div class="block">
+        <span class="demonstration">显示总数</span>
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page.sync="currentPage4"
+          :page-size="100"
+          layout="prev, pager, next, jumper"
+          :total="1000"
+        ></el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -66,10 +79,13 @@ export default {
           address: "上海市普陀区金沙江路 1516 弄"
         }
       ],
-      currentRow: null
+      currentRow: null,
+      currentPage4: 0
     };
   },
   methods: {
+    // 路由
+    handleSizeChange() {},
     handleCurrentChange() {},
     handleEdit(index, row) {
       console.log(index, row);
@@ -88,6 +104,13 @@ export default {
   .home-commondity-classify-box {
     width: 100%;
     background: #fff;
+    // 分页
+    .block {
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      padding: 20px;
+    }
   }
 }
 </style>

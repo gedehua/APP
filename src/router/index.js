@@ -1,88 +1,118 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+// 登录
 import Login from "@/views/Login.vue";
 // home
 import Home from "@/views/Home/Home.vue";
-import HomeIndex from "@/views/Home/HomeIndex.vue";
-import HomeOrder from "@/views/Home/HomeOrder.vue";
-import HomeShop from "@/views/Home/HomeShop.vue";
-// HomeCommodity
-import HomeCommodity from "@/views/Home/Commodity/HomeCommodity.vue";
-import HomeCommodityList from "@/views/Home/Commodity/HomeCommodityList.vue";
-import HomeCommodityAdd from "@/views/Home/Commodity/HomeCommodityAdd.vue";
-import HomeCommodityClassify from "@/views/Home/Commodity/HomeCommodityClassify.vue";
-// Acc
-import HomeAcc from "@/views/Home/Acc/HomeAcc.vue";
-import HomeAccList from "@/views/Home/Acc/HomeAccList.vue";
-import HomeAccAdd from "@/views/Home/Acc/HomeAccAdd.vue";
-import HomeAccmodify from "@/views/Home/Acc/HomeAccmodify.vue";
-
-// Sale
-import HomeSale from "@/views/Home/Sale/HomeSale.vue";
-import HomeSaleOrderStatistics from "@/views/Home/Sale/HomeSaleOrderStatistics.vue";
-import HomeSaleShopStatistics from "@/views/Home/Sale/HomeSaleShopStatistics.vue";
 
 Vue.use(VueRouter);
+
+// 避免导航冗余
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch((err) => err);
+};
 
 const routes = [
   {
     path: "/",
     redirect: "/login",
   },
+  // 登录
   {
     path: "/login",
     component: Login,
   },
+  //后端首页
   {
     path: "/home",
     component: Home,
-
-    // 二级路由
+    redirect: "/home/index",
     children: [
-      { path: "/", redirect: "/home/index" },
-      { path: "/home/index", component: HomeIndex },
-      { path: "/home/order", component: HomeOrder },
       {
-        // commodity
-        path: "/home/commodity",
-        component: HomeCommodity,
-        redirect: "/home/commodity/list",
-        // 三级路由
-        children: [
-          { path: "/home/commodity/list", component: HomeCommodityList },
-          { path: "/home/commodity/add", component: HomeCommodityAdd },
-          {
-            path: "/home/commodity/classify",
-            component: HomeCommodityClassify,
-          },
-        ],
+        path: "/home/index",
+        component: () => import("@/views/Home/HomeIndex.vue"),
       },
-      { path: "/home/shop", component: HomeShop },
+    ],
+  },
+  // 订单管理
+  {
+    path: "/home/order",
+    component: Home,
+    children: [
+      { path: "", component: () => import("@/views/Home/HomeOrder.vue") },
+    ],
+  },
+  // 商品管理
+  {
+    path: "/home/commodity",
+    component: Home,
+    redirect: "/home/commodity/list",
+    children: [
       {
-        // Acc
-        path: "/home/acc",
-        component: HomeAcc,
-        redirect: "/home/acc/list",
-        // 三级路由
-        children: [
-          { path: "/home/acc/list", component: HomeAccList },
-          { path: "/home/acc/add", component: HomeAccAdd },
-          {
-            path: "/home/acc/modify",
-            component: HomeAccmodify,
-          },
-        ],
+        path: "/home/commodity/list",
+        component: () => import("@/views/Home/Commodity/HomeCommodityList.vue"),
       },
       {
-        // Sale
-        path: "/home/sale",
-        component: HomeSale,
-        redirect: "/home/sale/shop",
-        // 三级路由
-        children: [
-          { path: "/home/sale/shop", component: HomeSaleShopStatistics },
-          { path: "/home/sale/order", component: HomeSaleOrderStatistics },
-        ],
+        path: "/home/commodity/add",
+        component: () => import("@/views/Home/Commodity/HomeCommodityAdd.vue"),
+      },
+      {
+        path: "/home/commodity/classify",
+        component: () =>
+          import("@/views/Home/Commodity/HomeCommodityClassify.vue"),
+      },
+    ],
+  },
+  // 店铺管理
+  {
+    path: "/home/shop",
+    component: Home,
+    children: [
+      { path: "", component: () => import("@/views/Home/HomeShop.vue") },
+    ],
+  },
+  // 账户管理
+  {
+    // Acc
+    path: "/home/acc",
+    component: Home,
+    redirect: "/home/acc/list",
+    children: [
+      {
+        path: "/home/acc/list",
+        component: () => import("@/views/Home/Acc/HomeAccList.vue"),
+      },
+      {
+        path: "/home/acc/add",
+        component: () => import("@/views/Home/Acc/HomeAccAdd.vue"),
+      },
+      {
+        path: "/home/acc/modify",
+        component: () => import("@/views/Home/Acc/HomeAccmodify.vue"),
+      },
+      {
+        path: "/home/acc/personal",
+        component: () => import("@/views/Home/Acc/HomePersonal.vue"),
+      },
+    ],
+  },
+  // 统计
+  {
+    // Sale
+    path: "/home/sale",
+    component: Home,
+    redirect: "/home/sale/shop",
+    // 三级路由
+    children: [
+      {
+        path: "/home/sale/shop",
+        component: () => import("@/views/Home/Sale/HomeSaleShopStatistics.vue"),
+      },
+      {
+        path: "/home/sale/order",
+        component: () =>
+          import("@/views/Home/Sale/HomeSaleOrderStatistics.vue"),
       },
     ],
   },

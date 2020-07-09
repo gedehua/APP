@@ -11,6 +11,8 @@
           tooltip-effect="dark"
           style="width: 100%"
           @selection-change="handleSelectionChange"
+          highlight-current-row
+          lazy
         >
           <!-- 复选框 -->
           <el-table-column type="selection" width="55"></el-table-column>
@@ -26,7 +28,7 @@
           <el-table-column label="操作">
             <template slot-scope="scope">
               <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-              <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              <el-button size="mini" type="danger" @click="handleDelete">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -66,21 +68,6 @@ export default {
           date: "2016-05-03",
           name: "王小虎",
           address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-02",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-04",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-01",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄"
         }
       ],
       multipleSelection: [],
@@ -108,8 +95,26 @@ export default {
     handleEdit(index, row) {
       console.log(index, row);
     },
+    // 删除
     handleDelete(index, row) {
-      console.log(index, row);
+      this.$confirm("是否永久删除该记录?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$message({
+            type: "success",
+            message: "删除成功!"
+          });
+          // 发送ajax
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     },
     // 分页
     handleSizeChange(val) {

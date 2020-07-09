@@ -19,6 +19,7 @@ export default {};
   .box {
     flex: 1;
     background-color: rgb(240, 242, 245);
+    overflow-y: scroll;
   }
 }
 </style>
