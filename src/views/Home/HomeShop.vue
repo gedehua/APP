@@ -1,10 +1,14 @@
 <template>
-  <div class="home-shop">
-    <div class="home-shop-box">
-      <titleP>店铺管理</titleP>
-
-      <div class="home-shop-box-form">
-        <el-form ref="form" :model="form" label-width="80px">
+  <div>
+    <!-- 店铺管理 -->
+    <fragment>
+      <!-- 标题 -->
+      <span slot="title">店铺管理</span>
+      <!-- 按钮 -->
+      <el-button size="small" type="primary" slot="btn">保存</el-button>
+      <!-- 内容 -->
+      <div slot="content">
+        <el-form ref="form" :model="form" label-width="80px" style="width:400px">
           <!-- 店铺名称 -->
           <el-form-item label="店铺名称">
             <el-input v-model="form.name"></el-input>
@@ -86,17 +90,14 @@
           </el-form-item>
         </el-form>
       </div>
-    </div>
+    </fragment>
   </div>
 </template>
 
 <script>
-import titleP from "@/components/Home/title.vue";
-
+import fragment from "@/components/Home/fragment.vue";
 export default {
-  components: {
-    titleP
-  },
+  components: { fragment },
   data() {
     return {
       form: {
@@ -156,63 +157,42 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.home-shop {
-  padding: 20px;
-  box-sizing: border-box;
-  .home-shop-box {
-    width: 100%;
-    background: #fff;
+.demo-table-expand {
+  font-size: 0;
+}
+.demo-table-expand label {
+  width: 90px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
+}
 
-    // home-shop-box-form
-    .home-shop-box-form {
-      width: 400px;
-      padding-bottom: 20px;
-    }
-
-    .demo-table-expand {
-      font-size: 0;
-    }
-    .demo-table-expand label {
-      width: 90px;
-      color: #99a9bf;
-    }
-    .demo-table-expand .el-form-item {
-      margin-right: 0;
-      margin-bottom: 0;
-      width: 50%;
-    }
-
-    // 分页
-    .block {
-      padding: 20px;
-    }
-
-    // 上传头像
-    .avatar-uploader .el-upload {
-      border: 1px dashed #d9d9d9;
-      border-radius: 6px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    .avatar-uploader .el-upload:hover {
-      border-color: #409eff;
-    }
-    .avatar-uploader-icon {
-      font-size: 28px;
-      color: #8c939d;
-      width: 178px;
-      height: 178px;
-      line-height: 178px;
-      text-align: center;
-    }
-    .avatar {
-      width: 178px;
-      height: 178px;
-      display: block;
-    }
-
-    //
-  }
+// 上传头像
+/deep/.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  width: 160px;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100%;
+  height: 100%;
+  line-height: 160px;
+  text-align: center;
+}
+.avatar {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 </style>

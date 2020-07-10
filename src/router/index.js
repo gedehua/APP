@@ -28,6 +28,7 @@ const routes = [
     path: "/home",
     component: Home,
     redirect: "/home/index",
+    meta: { title: "后台首页" },
     children: [
       {
         path: "/home/index",
@@ -39,8 +40,19 @@ const routes = [
   {
     path: "/home/order",
     component: Home,
+    redirect: "/home/order/list",
+    meta: { title: "订单管理" },
     children: [
-      { path: "", component: () => import("@/views/Home/HomeOrder.vue") },
+      {
+        path: "/home/order/list",
+        component: () => import("@/views/Home/Order/HomeOrderList.vue"),
+        meta: { title: "订单列表" },
+      },
+      {
+        path: "/home/order/edit",
+        component: () => import("@/views/Home/Order/HomeOrderEdit.vue"),
+        meta: { title: "订单编辑" },
+      },
     ],
   },
   // 商品管理
@@ -48,19 +60,29 @@ const routes = [
     path: "/home/commodity",
     component: Home,
     redirect: "/home/commodity/list",
+    meta: { title: "商品管理" },
     children: [
       {
         path: "/home/commodity/list",
         component: () => import("@/views/Home/Commodity/HomeCommodityList.vue"),
+        meta: { title: "商品列表" },
+      },
+      {
+        path: "/home/commodity/list/modify",
+        component: () =>
+          import("@/views/Home/Commodity/HomeCommodityListChange.vue"),
+        meta: { title: "修改商品" },
       },
       {
         path: "/home/commodity/add",
         component: () => import("@/views/Home/Commodity/HomeCommodityAdd.vue"),
+        meta: { title: "商品添加" },
       },
       {
         path: "/home/commodity/classify",
         component: () =>
           import("@/views/Home/Commodity/HomeCommodityClassify.vue"),
+        meta: { title: "商品分类" },
       },
     ],
   },
@@ -68,6 +90,7 @@ const routes = [
   {
     path: "/home/shop",
     component: Home,
+    meta: { title: "店铺管理" },
     children: [
       { path: "", component: () => import("@/views/Home/HomeShop.vue") },
     ],
@@ -78,22 +101,27 @@ const routes = [
     path: "/home/acc",
     component: Home,
     redirect: "/home/acc/list",
+    meta: { title: "账号管理" },
     children: [
       {
         path: "/home/acc/list",
         component: () => import("@/views/Home/Acc/HomeAccList.vue"),
+        meta: { title: "账号列表" },
       },
       {
         path: "/home/acc/add",
         component: () => import("@/views/Home/Acc/HomeAccAdd.vue"),
+        meta: { title: "添加账号" },
       },
       {
         path: "/home/acc/modify",
         component: () => import("@/views/Home/Acc/HomeAccmodify.vue"),
+        meta: { title: "修改密码" },
       },
       {
         path: "/home/acc/personal",
         component: () => import("@/views/Home/Acc/HomePersonal.vue"),
+        meta: { title: "个人中心" },
       },
     ],
   },
@@ -102,17 +130,21 @@ const routes = [
     // Sale
     path: "/home/sale",
     component: Home,
+
     redirect: "/home/sale/shop",
+    meta: { title: "销售统计" },
     // 三级路由
     children: [
       {
         path: "/home/sale/shop",
         component: () => import("@/views/Home/Sale/HomeSaleShopStatistics.vue"),
+        meta: { title: "商品统计" },
       },
       {
         path: "/home/sale/order",
         component: () =>
           import("@/views/Home/Sale/HomeSaleOrderStatistics.vue"),
+        meta: { title: "订单统计" },
       },
     ],
   },

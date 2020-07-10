@@ -10,12 +10,12 @@
     >
       <h5 class="h5-title">外卖商家中心</h5>
       <!-- 后台首页 -->
-      <el-menu-item index="/home">
+      <el-menu-item index="/home/index">
         <i class="el-icon-s-home"></i>
         <span slot="title">后台首页</span>
       </el-menu-item>
       <!-- 订单管理 -->
-      <el-menu-item index="/home/order">
+      <el-menu-item index="/home/order/list">
         <i class="el-icon-document"></i>
         <span slot="title">订单管理</span>
       </el-menu-item>

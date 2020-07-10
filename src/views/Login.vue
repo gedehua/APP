@@ -34,8 +34,31 @@
 </template>
 
 <script>
+// 引入正则
+import { ACC_REG, PWD_REG } from "@/utils/reg";
 export default {
   data() {
+    // 账户验证
+    const checkAcc = (rule, val, callback) => {
+      if (!val) {
+        callback(new Error("请输入账号"));
+      } else if (!ACC_REG.test(val)) {
+        callback(new Error("3到8位,文字、字母"));
+      } else {
+        callback();
+      }
+    };
+
+    // 密码验证
+    const checkPwd = (rule, val, callback) => {
+      if (!val) {
+        callback(new Error("请输入账号"));
+      } else if (!PWD_REG.test(val)) {
+        callback(new Error("3到12位,数字、大小写字母"));
+      } else {
+        callback();
+      }
+    };
     return {
       // 判断是否 type&&icon 是否打开
       isOpen: false,
@@ -44,11 +67,8 @@ export default {
         pwd: ""
       },
       rules: {
-        acc: { required: true, message: "请输入账号", trigger: "blur" },
-        pwd: [
-          { required: true, message: "请输入密码", trigger: "blur" },
-          { min: 6, max: 12, message: "长度在 6 到 12 个字符", trigger: "blur" }
-        ]
+        acc: { required: true, validator: checkAcc, trigger: "blur" },
+        pwd: { required: true, validator: checkPwd, trigger: "blur" }
       }
     };
   },

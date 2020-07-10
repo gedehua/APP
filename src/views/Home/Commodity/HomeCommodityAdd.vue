@@ -1,17 +1,16 @@
 <template>
-  <div class="home-commondity-add">
-    <div class="home-commondity-add-box">
-      <titleP>商品添加</titleP>
-
-      <div class="from">
-        <!-- 商品名称 -->
-        <el-form size="small" ref="form" :model="form" label-width="80px">
+  <div>
+    <fragment>
+      <!-- 标题 -->
+      <span slot="title">商品添加</span>
+      <!-- 内容 -->
+      <div slot="content">
+        <el-form size="small" style="width:400px" ref="form" :model="form" label-width="80px">
+          <!-- 商品名称 -->
           <el-form-item label="商品名称">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
-        </el-form>
-        <!-- 商品分类 -->
-        <el-form size="small" ref="form" :model="form" label-width="80px">
+          <!-- 商品分类 -->
           <el-form-item label="商品分类">
             <el-select v-model="value" clearable placeholder="请选择">
               <el-option
@@ -22,15 +21,11 @@
               ></el-option>
             </el-select>
           </el-form-item>
-        </el-form>
-        <!-- 商品价格 -->
-        <el-form size="small" ref="form" :model="form" label-width="80px">
+          <!-- 商品价格 -->
           <el-form-item label="商品价格">
-            <el-input-number size="small" v-model="num3"></el-input-number>
+            <el-input-number v-model="num3"></el-input-number>
           </el-form-item>
-        </el-form>
-        <!-- 商品图片 -->
-        <el-form size="small" ref="form" :model="form" label-width="80px">
+          <!-- 商品图片 -->
           <el-form-item label="商品价格">
             <el-upload
               action="https://jsonplaceholder.typicode.com/posts/"
@@ -44,25 +39,21 @@
               <img width="100%" :src="dialogImageUrl" alt />
             </el-dialog>
           </el-form-item>
-        </el-form>
-        <!-- 商品描述 -->
-        <el-form size="small" ref="form" :model="form" label-width="80px">
+          <!-- 商品描述 -->
           <el-form-item label="商品价格">
             <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="textarea"></el-input>
           </el-form-item>
         </el-form>
-        <el-button class="btn" size="small" type="primary">添加商品</el-button>
+        <el-button class="btn" type="primary">添加商品</el-button>
       </div>
-    </div>
+    </fragment>
   </div>
 </template>
 
 <script>
-import titleP from "@/components/Home/title.vue";
+import fragment from "@/components/Home/fragment.vue";
 export default {
-  components: {
-    titleP
-  },
+  components: { fragment },
   data() {
     return {
       form: { name: "" },
@@ -91,20 +82,4 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.home-commondity-add {
-  padding: 20px;
-  box-sizing: border-box;
-  .home-commondity-add-box {
-    width: 100%;
-    background: #fff;
-
-    .from {
-      width: 400px;
-    }
-    .btn {
-      margin-left: 80px;
-      margin-bottom: 20px;
-    }
-  }
-}
 </style>

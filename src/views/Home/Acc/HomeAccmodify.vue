@@ -1,39 +1,62 @@
 <template>
-  <div class="home-acc-modify">
-    <div class="home-acc-modify-box">
-      <!-- titleP 插槽 组件 -->
-      <titleP>修改密码</titleP>
-      <el-form :model="changePwd" status-icon :rules="rules" ref="changePwd" label-width="100px">
-        <!-- 原密码 -->
-        <el-form-item label="原密码" prop="oldPwd">
-          <el-input type="password" v-model="changePwd.oldPwd"></el-input>
-        </el-form-item>
-        <!-- 新密码 -->
-        <el-form-item label="新密码" prop="newPwd">
-          <el-input type="password" v-model="changePwd.newPwd" autocomplete="off"></el-input>
-        </el-form-item>
-        <!-- 确定新密码 -->
-        <el-form-item label="确认新密码" prop="definePwd">
-          <el-input type="password" v-model="changePwd.definePwd" autocomplete="off"></el-input>
-        </el-form-item>
-        <!-- 按钮组 -->
-        <el-form-item>
-          <el-button size="small" type="primary" @click="submitForm">提交</el-button>
-          <el-button size="small" @click="resetForm">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
+  <div>
+    <fragment>
+      <!-- 标题 -->
+      <span slot="title">修改密码</span>
+      <!-- 内容 -->
+      <div slot="content">
+        <el-form
+          style="width:350px"
+          :model="changePwd"
+          status-icon
+          :rules="rules"
+          ref="changePwd"
+          label-width="100px"
+        >
+          <!-- 原密码 -->
+          <el-form-item label="原密码" prop="oldPwd">
+            <el-input type="password" v-model="changePwd.oldPwd"></el-input>
+          </el-form-item>
+          <!-- 新密码 -->
+          <el-form-item label="新密码" prop="newPwd">
+            <el-input type="password" v-model="changePwd.newPwd" autocomplete="off"></el-input>
+          </el-form-item>
+          <!-- 确定新密码 -->
+          <el-form-item label="确认新密码" prop="definePwd">
+            <el-input type="password" v-model="changePwd.definePwd" autocomplete="off"></el-input>
+          </el-form-item>
+          <!-- 按钮组 -->
+          <el-form-item>
+            <el-button size="small" type="primary" @click="submitForm">提交</el-button>
+            <el-button size="small" @click="resetForm">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+    </fragment>
   </div>
 </template>
 
 <script>
+// 引入正则组件
+import { ACC_REG, PWD_REG } from "@/utils/reg.js";
 // 组件
-import titleP from "@/components/Home/title.vue";
+import fragment from "@/components/Home/fragment.vue";
 export default {
-  components: { titleP },
+  components: { fragment },
   data() {
-    var validatePass2 = (rule, value, callback) => {
-      if (value === "") {
+    // 自定义验证新密码
+    const checkNeWpWD = (rule, val, callback) => {
+      if (!val) {
+        callback(new Error("请输入密码"));
+      } else if (!PWD_REG.test(val)) {
+        callback(new Error("请输入3到12位:数字、大小写字母"));
+      } else {
+        callback();
+      }
+    };
+    // 自定义再次确定新密码
+    const validatePass = (rule, value, callback) => {
+      if (!value) {
         callback(new Error("请再次输入新密码"));
       } else if (value !== this.changePwd.newPwd) {
         callback(new Error("两次输入新密码不一致!"));
@@ -49,15 +72,8 @@ export default {
       },
       rules: {
         oldPwd: [{ required: true, message: "请输入原密码", trigger: "blur" }],
-        newPwd: [
-          { required: true, message: "请输入新密码", trigger: "blur" },
-          { min: 6, max: 12, message: "长度在 3 到 6 个字符", trigger: "blur" }
-        ],
-        definePwd: [
-          { required: true, message: "请再次输入新密码", trigger: "blur" },
-          { min: 6, max: 12, message: "长度在 3 到 6 个字符", trigger: "blur" },
-          { validator: validatePass2, trigger: "blur" }
-        ]
+        newPwd: { required: true, validator: checkNeWpWD, trigger: "blur" },
+        definePwd: { required: true, validator: validatePass, trigger: "blur" }
       }
     };
   },
@@ -66,6 +82,7 @@ export default {
     submitForm() {
       this.$refs.changePwd.validate(valid => {
         if (valid) {
+          // 成功
           const h = this.$createElement;
           this.$msgbox({
             title: "消息",
@@ -97,6 +114,7 @@ export default {
             });
           });
         } else {
+          // 失败
           return false;
         }
       });
@@ -111,16 +129,4 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.home-acc-modify {
-  padding: 20px;
-  box-sizing: border-box;
-  .home-acc-modify-box {
-    height: 400px;
-    width: 100%;
-    background: #fff;
-    .el-form {
-      width: 400px;
-    }
-  }
-}
 </style>
