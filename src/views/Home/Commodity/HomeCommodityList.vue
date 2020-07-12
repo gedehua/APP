@@ -44,13 +44,13 @@
           <el-table-column label="商品价格" prop="price"></el-table-column>
           <!-- 图片 -->
           <el-table-column label="商品图片">
-            <el-image v-for="(v,i) in data" :key="i" :src="v.imgUrl" lazy></el-image>
+            <el-image :src="data.imgUrl" lazy></el-image>
           </el-table-column>
           <el-table-column label="描述" prop="goodsDesc"></el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-              <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+              <el-button size="mini" type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -59,11 +59,11 @@
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 20, 50, 100]"
+          :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
           style="margin:20px"
         ></el-pagination>
       </div>
@@ -72,47 +72,71 @@
 </template>
 
 <script>
+// 引入卡片模块
 import fragment from "@/components/Home/fragment.vue";
+
+// 引入ajax
+import { list, del } from "@/api/shop";
+// 引入moment
+import moment from "moment";
 export default {
   components: { fragment },
   data() {
     return {
-      data: [
-        {
-          id: 46,
-          ctime: "2020-05-06T13:45:31.000Z",
-          name: "田园蔬菜树",
-          category: "热销榜",
-          price: 11,
-          imgUrl:
-            "https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg",
-          goodsDesc: "不错的商品",
-          rating: 100,
-          sellCount: 288
-        }
-      ],
+      data: [],
 
       // 分页
-      currentPage4: 4
+      currentPage: 1,
+      // 当前页条数
+      pageSize: 10,
+      // 总条数
+      total: 0
     };
   },
   methods: {
-    // 编辑按钮
-    handleEdit() {
-      this.$router.push("/home/commodity/list/modify");
+    //获取商品列表函数
+    async getList() {
+      let { total, data } = await list({
+        currentPage: this.currentPage,
+        pageSize: this.pageSize
+      });
+
+      // 处理时间
+      data.forEach(v => {
+        v.ctime = moment(v.ctime).format("YYYY-MM-DD HH:mm:ss");
+      });
+
+      // 处理图片
+      // data.forEach(v => {
+      //   v.imgUrl = require(`http://localhost:8080/upload/imgs/acc_img/${v.imgUrl}`);
+      // });
+
+      // 渲染数据
+      this.data = data;
+      // 渲染条数
+      this.total = total;
     },
-    // 删除按钮
-    handleDelete() {
+    // 条数
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.getList();
+    },
+    // 页码
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.getList();
+    },
+
+    // 删除商品
+    handleDelete(id) {
       this.$confirm("是否永久删除该记录?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
-        .then(() => {
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
+        .then(async () => {
+          let { code } = await del({ id });
+          this.getList();
         })
         .catch(() => {
           this.$message({
@@ -121,14 +145,15 @@ export default {
           });
         });
     },
-
-    // 分页
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
-    },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+    // 编辑按钮
+    handleEdit() {
+      this.$router.push("/home/commodity/list/modify");
     }
+  },
+
+  // 创建前
+  created() {
+    this.getList();
   }
 };
 </script>

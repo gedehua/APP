@@ -4,20 +4,20 @@
       <h3>系统登录</h3>
       <el-form :model="loginForm" :rules="rules" ref="loginForm" size="medium " label-width="100px">
         <!-- 账户 -->
-        <el-form-item label="账户" prop="acc">
+        <el-form-item label="账户" prop="account">
           <el-input
             clearable
             type="text"
-            v-model="loginForm.acc"
+            v-model="loginForm.account"
             prefix-icon="el-icon-user-solid"
             autocomplete="off"
           ></el-input>
         </el-form-item>
         <!-- 密码 -->
-        <el-form-item label="密码" prop="pwd">
+        <el-form-item label="密码" prop="password">
           <el-input
             :type="isOpen?'text':'password'"
-            v-model="loginForm.pwd"
+            v-model="loginForm.password"
             prefix-icon="el-icon-s-tools"
             :suffix-icon="isOpen?'iconfont icon-yanjing':'iconfont icon-yanjing1'"
             autocomplete="off"
@@ -34,6 +34,10 @@
 </template>
 
 <script>
+// 引入接口层
+import { checkLogin } from "@/api/account";
+// 引入local
+import local from "@/utils/local";
 // 引入正则
 import { ACC_REG, PWD_REG } from "@/utils/reg";
 export default {
@@ -63,12 +67,12 @@ export default {
       // 判断是否 type&&icon 是否打开
       isOpen: false,
       loginForm: {
-        acc: "",
-        pwd: ""
+        account: "",
+        password: ""
       },
       rules: {
-        acc: { required: true, validator: checkAcc, trigger: "blur" },
-        pwd: { required: true, validator: checkPwd, trigger: "blur" }
+        account: { required: true, validator: checkAcc, trigger: "blur" },
+        password: { required: true, validator: checkPwd, trigger: "blur" }
       }
     };
   },
@@ -84,20 +88,15 @@ export default {
     },
     // 提交登录
     submitForm() {
-      this.$refs.loginForm.validate(data => {
-        if (data) {
-          this.$message({
-            showClose: true,
-            message: "欢迎:" + this.loginForm.acc,
-            type: "success"
-          });
-          this.$router.push("/home");
-        } else {
-          this.$message({
-            showClose: true,
-            message: "请输入用户名",
-            type: "error"
-          });
+      this.$refs.loginForm.validate(async data => {
+        let { code, msg, role, token } = await checkLogin(this.loginForm);
+
+        if (code === 0) {
+          // 登录成功
+          this.$router.push("/home"); //跳转到后台首页
+          // 将token令牌存到本地存储
+          local.set("t_k", token);
+          local.set("pwd", this.loginForm.password);
         }
       });
     }

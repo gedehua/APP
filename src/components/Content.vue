@@ -42,6 +42,8 @@
 </template>
 
 <script>
+// 引入local
+import local from "@/utils/local";
 export default {
   data() {
     return {
@@ -59,8 +61,10 @@ export default {
         // 点击跳转到个人中心
         this.$router.push("/home/acc/personal");
       } else if (command === "b") {
-        // 推出系统
-        this.$message("click on item " + command);
+        // 退出系统
+        this.$message({ message: "欢迎下次再来,哥哥", type: "success" });
+        local.clear(); // 清除本地
+        this.$router.push("/login"); // 跳转到登录
       }
     },
     routerChange() {

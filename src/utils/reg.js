@@ -4,7 +4,7 @@
  */
 
 //  账户
-export const ACC_REG = /^[a-zA-Z\u4E00-\u9FA5]{3,8}$/;
+export const ACC_REG = /^[a-zA-Z_\u4E00-\u9FA5]{3,8}$/;
 
 // 密码
 export const PWD_REG = /^[a-zA-Z0-9]{3,12}$/;

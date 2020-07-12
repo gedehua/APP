@@ -42,13 +42,14 @@
               v-model="orderVul"
               size="small"
               clearable
-              placeholder="订单转态"
+              placeholder="订单状态"
+              @change="aaa"
             >
               <el-option
                 v-for="item in options"
                 :key="item.value"
                 :label="item.label"
-                :value="item.value"
+                :value="item.label"
               ></el-option>
             </el-select>
           </p>
@@ -56,7 +57,7 @@
         <div class="block">
           <span class="demonstration" style="margin-right:20px">选择时间</span>
           <el-date-picker
-            v-model="value2"
+            v-model="time"
             size="small"
             type="datetimerange"
             :picker-options="pickerOptions"
@@ -65,24 +66,24 @@
             end-placeholder="结束日期"
             align="right"
           ></el-date-picker>
-          <el-button style="margin-left:20px" size="small" type="primary">查询</el-button>
+          <el-button style="margin-left:20px" @click="queryOrder" size="small" type="primary">查询</el-button>
         </div>
       </div>
       <!-- 订单列表 -->
       <div class="home-order-main">
-        <el-table :data="tableData" border style="width: 1200px;">
-          <el-table-column fixed prop="date" label="订单号" width="120"></el-table-column>
-          <el-table-column prop="name" label="下单时间" width="120"></el-table-column>
-          <el-table-column prop="province" label="手机号" width="120"></el-table-column>
-          <el-table-column prop="city" label="收货人" width="120"></el-table-column>
-          <el-table-column prop="address" label="配送地址" width="300"></el-table-column>
-          <el-table-column prop="zip" label="送达时间" width="120"></el-table-column>
-          <el-table-column prop="zip" label="用户备注" width="120"></el-table-column>
-          <el-table-column prop="zip" label="订单金额" width="120"></el-table-column>
-          <el-table-column prop="zip" label="订单状态" width="120"></el-table-column>
+        <el-table :data="tableData" border>
+          <el-table-column fixed prop="orderNo" label="订单号" width="120"></el-table-column>
+          <el-table-column prop="orderTime" label="下单时间" width="200"></el-table-column>
+          <el-table-column prop="phone" label="手机号" width="120"></el-table-column>
+          <el-table-column prop="consignee" label="收货人" width="120"></el-table-column>
+          <el-table-column prop="deliverAddress" label="配送地址" width="300"></el-table-column>
+          <el-table-column prop="deliveryTime" label="送达时间" width="120"></el-table-column>
+          <el-table-column prop="remarks" label="用户备注" width="120"></el-table-column>
+          <el-table-column prop="orderAmount" label="订单金额" width="120"></el-table-column>
+          <el-table-column prop="orderState" label="订单状态" width="120"></el-table-column>
           <el-table-column fixed="right" label="操作" width="120">
             <template slot-scope="scope">
-              <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+              <el-button @click="handleClick(scope.row.id)" type="text" size="small">查看</el-button>
               <el-button type="text" size="small">编辑</el-button>
             </template>
           </el-table-column>
@@ -94,18 +95,62 @@
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 20, 50,100]"
+          :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
         ></el-pagination>
       </div>
+
+      <!-- 详情 -->
+      <el-dialog title="订单详情" :visible.sync="dialogFormVisible" width="40%">
+        <el-form :model="form" label-width="100px" size="small" style="width:400px">
+          <el-form-item label="订单id">
+            <el-input v-model="form.id" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="订单号">
+            <el-input v-model="form.orderNo"></el-input>
+          </el-form-item>
+          <el-form-item label="下单时间">
+            <el-input v-model="form.orderTime"></el-input>
+          </el-form-item>
+          <el-form-item label="联系电话">
+            <el-input v-model="form.phone"></el-input>
+          </el-form-item>
+          <el-form-item label="收货人">
+            <el-input v-model="form.consignee"></el-input>
+          </el-form-item>
+          <el-form-item label="送货地址">
+            <el-input v-model="form.deliverAddress"></el-input>
+          </el-form-item>
+          <el-form-item label="送达时间">
+            <el-input v-model="form.deliveryTime"></el-input>
+          </el-form-item>
+          <el-form-item label="备注">
+            <el-input v-model="form.remarks"></el-input>
+          </el-form-item>
+          <el-form-item label="订单金额">
+            <el-input v-model="form.orderAmount"></el-input>
+          </el-form-item>
+          <el-form-item label="订单状态">
+            <el-input v-model="form.orderState"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
+          <el-button size="small" type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
+// ajax
+import { list, search, detail } from "@/api/order";
+// moment
+import moment from "moment";
 export default {
   data() {
     return {
@@ -116,28 +161,7 @@ export default {
       // 手机号
       phone: "",
       orderVul: "",
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
+      options: [{ label: "已完成" }, { label: "已受理" }, { label: "派送中" }],
       // 日期数据
       pickerOptions: {
         shortcuts: [
@@ -170,60 +194,91 @@ export default {
           }
         ]
       },
-      value2: [new Date(2020, 6, 10, 8, 40), new Date(2020, 6, 10, 9, 40)],
+      time: [],
 
       // 表格数据
-      tableData: [
-        {
-          date: "2016-05-02",
-          name: "王小虎",
-          province: "上海",
-          city: "普陀区",
-          address: "上海市普陀区金沙江路 1518 弄",
-          zip: 200333
-        },
-        {
-          date: "2016-05-04",
-          name: "王小虎",
-          province: "上海",
-          city: "普陀区",
-          address: "上海市普陀区金沙江路 1517 弄",
-          zip: 200333
-        },
-        {
-          date: "2016-05-01",
-          name: "王小虎",
-          province: "上海",
-          city: "普陀区",
-          address: "上海市普陀区金沙江路 1519 弄",
-          zip: 200333
-        },
-        {
-          date: "2016-05-03",
-          name: "王小虎",
-          province: "上海",
-          city: "普陀区",
-          address: "上海市普陀区金沙江路 1516 弄",
-          zip: 200333
-        }
-      ],
+      tableData: [],
 
       // 分页
-      currentPage4: 4
+      currentPage: 1,
+      total: 0,
+      pageSize: 10,
+
+      // 订单状态
+      orderState: "",
+
+      // 订单详情
+      dialogFormVisible: false,
+      form: []
     };
   },
   methods: {
-    // 订单列表
-    handleClick(row) {
-      console.log(row);
+    // 获取订单
+    async getList() {
+      let { total, data } = await list({
+        currentPage: this.currentPage, //页码
+        pageSize: this.pageSize, //条数
+        orderNo: this.orderAs, //订单号
+        consignee: this.Receiving, //收货人
+        phone: this.phone, //电话
+        orderState: "", //订单状态
+        date: "" //日期
+      });
+      // 处理时间
+      data.forEach(v => {
+        v.orderTime = moment(v.orderTime).format("YYYY-MM-DD HH:mm:ss");
+        v.deliveryTime = moment(v.deliveryTime).format("YYYY-MM-DD HH:mm:ss");
+      });
+
+      this.tableData = data;
+      this.total = total;
     },
     // 分页
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.pageSize = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.currentPage = val;
+      this.getList();
+    },
+
+    // 查询订单
+    async queryOrder() {
+      let { total, data } = await search({
+        currentPage: this.currentPage, //页码
+        pageSize: this.pageSize, //条数
+        orderNo: this.orderAs, //订单号
+        consignee: this.Receiving, //收货人
+        phone: this.phone, //电话
+        orderState: this.orderState, //订单状态
+        date: JSON.stringify(this.time) //日期
+      });
+      // 处理时间
+      data.forEach(v => {
+        v.orderTime = moment(v.orderTime).format("YYYY-MM-DD HH:mm:ss");
+        v.deliveryTime = moment(v.deliveryTime).format("YYYY-MM-DD HH:mm:ss");
+      });
+      // 渲染数据
+      this.tableData = data;
+      this.total = total;
+    },
+    // 处理订单状态
+    aaa(val) {
+      this.orderState = val;
+    },
+    // 查看订单详情
+    async handleClick(id) {
+      // ajax
+      let { data } = await detail({ id });
+      // 数据赋值
+      this.form = data;
+      // 弹出蒙层
+      this.dialogFormVisible = true;
     }
+  },
+  created() {
+    this.getList();
   }
 };
 </script>
@@ -231,13 +286,16 @@ export default {
 <style lang="less" scoped>
 .home-order {
   display: flex;
-  flex-direction: column;
-  padding: 20px;
+  height: 100%;
+  width: 100%;
+  padding-bottom: 40px;
   .home-order-box {
     height: 100%;
     display: flex;
+    width: 1400px;
     flex-direction: column;
     background: #fff;
+    padding-bottom: 30px;
     .home-order-title {
       display: flex;
       flex-direction: column;
@@ -253,6 +311,9 @@ export default {
           margin: 0px 10px;
         }
       }
+    }
+    .home-order-main {
+      flex: 1;
     }
   }
 }

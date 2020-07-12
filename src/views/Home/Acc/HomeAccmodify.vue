@@ -41,9 +41,23 @@
 import { ACC_REG, PWD_REG } from "@/utils/reg.js";
 // 组件
 import fragment from "@/components/Home/fragment.vue";
+// ajax
+import { checkoldpwd, editpwd } from "@/api/account";
+
 export default {
   components: { fragment },
   data() {
+    // 原密码失去焦点验证
+    const checkOldPWD = async (rule, val, callback) => {
+      if (!val) {
+        callback(new Error("请输入原密码"));
+      } else {
+        let { code, msg } = await checkoldpwd({ oldPwd: val });
+        if (code == "11") {
+          callback(msg);
+        }
+      }
+    };
     // 自定义验证新密码
     const checkNeWpWD = (rule, val, callback) => {
       if (!val) {
@@ -71,7 +85,7 @@ export default {
         definePwd: "" //确定新密码
       },
       rules: {
-        oldPwd: [{ required: true, message: "请输入原密码", trigger: "blur" }],
+        oldPwd: [{ required: true, validator: checkOldPWD, trigger: "blur" }],
         newPwd: { required: true, validator: checkNeWpWD, trigger: "blur" },
         definePwd: { required: true, validator: validatePass, trigger: "blur" }
       }
@@ -91,7 +105,9 @@ export default {
             ]),
             showClose: false,
             confirmButtonText: "确定",
-            beforeClose: (action, instance, done) => {
+            beforeClose: async (action, instance, done) => {
+              // 发送ajax 请求修改密码
+              let { code } = await editpwd({ newPwd: this.changePwd.newPwd });
               if (action === "confirm") {
                 instance.confirmButtonLoading = true;
                 instance.confirmButtonText = "执行中...";
@@ -99,19 +115,11 @@ export default {
                   // 修改成功后跳到登录页面
                   this.$router.push("/login");
                   done();
-                  // setTimeout(() => {
-                  //   instance.confirmButtonLoading = false;
-                  // }, 300);
                 }, 500);
               } else {
                 done();
               }
             }
-          }).then(action => {
-            this.$message({
-              type: "success",
-              message: "请登录: " + action
-            });
           });
         } else {
           // 失败

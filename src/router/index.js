@@ -5,6 +5,8 @@ import Login from "@/views/Login.vue";
 // home
 import Home from "@/views/Home/Home.vue";
 
+// local
+import local from "@/utils/local";
 Vue.use(VueRouter);
 
 // 避免导航冗余
@@ -153,5 +155,28 @@ const routes = [
 const router = new VueRouter({
   routes,
 });
+
+/* 路由守卫 */
+// router.beforeEach((to, from, next) => {
+//   /*
+//     to: 你要去哪栋？ 【你要去的目标路由对象】
+//     from: 你从哪里来啊？ 【你离开的路由对象】
+//     next： 走吧 放行 【是个函数】
+//   */
+
+//   // 判断是否登录
+//   let isLogin = local.get("t_k") ? true : false;
+
+//   if (isLogin) {
+//     next(); // 如果登录过 直接放行
+//   } else {
+//     // 如果去的是登录
+//     if (to.path === "/login") {
+//       next(); // 放行
+//     } else {
+//       next({ path: "/login" }); // 否则 去的就是别的页面 重置到登录
+//     }
+//   }
+// });
 
 export default router;

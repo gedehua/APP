@@ -41,6 +41,8 @@
 </template>
 
 <script>
+// 引入接口层
+import { AddAccount } from "@/api/account";
 // 引入自己封装的面板
 import fragment from "@/components/Home/fragment.vue";
 // 引入正则
@@ -60,7 +62,7 @@ export default {
       if (!val) {
         callback(new Error("请输入账号"));
       } else if (!ACC_REG.test(val)) {
-        callback(new Error("3到8位,文字、字母"));
+        callback(new Error("3到8位:文字、字母"));
       } else {
         callback();
       }
@@ -100,20 +102,16 @@ export default {
     // 登录验证表单
     submitForm() {
       // 和ref 绑定的表单 整个表单触发 validete 验证
-      this.$refs.addAccForm.validate(valid => {
+      this.$refs.addAccForm.validate(async valid => {
+        // 判断valid 的状态  为true 就代表 表单验证成功 false 代表失败
         if (valid) {
-          // 成功
-          this.$message({
-            message: "恭喜你,添加成功",
-            type: "success"
-          });
-          // this.
-          this.addAccForm = { account: "", password: "", userGroup: "" };
-        } else {
-          // 失败
-          console.log("error submit!!");
-          return false;
+          // 成功发送axios
+          let { code } = await AddAccount(this.addAccForm);
+          if (code !== 0) {
+            this.$message.error("添加失败,请稍后再试");
+          }
         }
+        // this.addAccForm = { account: "", password: "", userGroup: "" };
       });
     },
     // 重置按钮

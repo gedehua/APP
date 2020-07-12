@@ -5,10 +5,10 @@
       <span slot="title">管理员信息</span>
       <!-- 内容 -->
       <div slot="content" class="home-acc-personal-box">
-        <p>管理员ID</p>
-        <p>账号</p>
-        <p>用户组</p>
-        <p class="time">创建时间</p>
+        <p>管理员ID：{{data.id}}</p>
+        <p>账号：{{data.account}}</p>
+        <p>用户组：{{data.userGroup}}</p>
+        <p class="time">创建时间：{{data.ctime}}</p>
         <div>
           管理员头像:
           <el-upload
@@ -17,8 +17,9 @@
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
+            :submit="ss"
           >
-            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <img v-if="data.imgUrl" :src="data.imgUrl" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </div>
@@ -28,17 +29,33 @@
 </template>
 
 <script>
+// 引入卡片
 import fragment from "@/components/Home/fragment.vue";
+// 引入ajax
+import { accountinfo, avatarUpload } from "@/api/account";
+// 引入moment
+import moment from "moment";
+// local
+import local from "@/utils/local";
 export default {
   components: { fragment },
   methods: {
     handleAvatarSuccess() {},
-    beforeAvatarUpload() {}
+    beforeAvatarUpload() {},
+    ss() {
+      console.log(1);
+    }
   },
   data() {
     return {
-      imageUrl: {}
+      data: {}
     };
+  },
+  async created() {
+    let accountInfo = await accountinfo();
+    accountInfo.ctime = moment(accountInfo.ctime).format("YYYY-MM-DD HH:mm:ss");
+    this.data = accountInfo;
+    local.set("img", accountInfo.imgUrl);
   }
 };
 </script>
