@@ -14,7 +14,7 @@
         <!-- 下拉菜单 -->
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">
-            下拉菜单
+            {{user}}
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
@@ -24,16 +24,7 @@
         </el-dropdown>
         <!-- 头像 -->
 
-        <el-col :span="12">
-          <div class="demo-basic--circle">
-            <div class="block">
-              <el-avatar :size="50" :src="circleUrl"></el-avatar>
-            </div>
-            <div class="block" v-for="size in sizeList" :key="size">
-              <el-avatar :size="size" :src="circleUrl"></el-avatar>
-            </div>
-          </div>
-        </el-col>
+        <el-avatar :size="50" :src="imgUrl" style="margin-left:10px"></el-avatar>
       </el-col>
     </el-row>
     <!-- 主要内容出口 -->
@@ -44,14 +35,15 @@
 <script>
 // 引入local
 import local from "@/utils/local";
+// ajax
+import { accountinfo } from "@/api/account";
 export default {
   data() {
     return {
       // 面包屑数组
       crumbsArr: [],
-      sizeList: "",
-      circleUrl:
-        "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"
+      user: "", //用户名
+      imgUrl: "" //头像
     };
   },
   methods: {
@@ -67,6 +59,7 @@ export default {
         this.$router.push("/login"); // 跳转到登录
       }
     },
+    // 面包屑
     routerChange() {
       let arr = [{ title: "首页", path: "/home" }];
       // 遍历 $route.matched 这个数组
@@ -81,11 +74,30 @@ export default {
       });
       // 赋值给 存放面包屑数组
       this.crumbsArr = arr;
+    },
+
+    //  更新个人信息
+    async accInfo() {
+      let user = await accountinfo();
+      // 更新个人信息
+      this.user = user.account;
+      this.imgUrl = user.imgUrl;
+      // 把数据存到本地
+      local.set("user", user);
     }
   },
   created() {
-    //
+    // 面包屑
     this.routerChange();
+    // 更新信息
+    this.accInfo();
+
+    // console.log(this.accInfo());
+
+    // 接受个人中心的通知
+    this.$bus.$on("updata_avatar", () => {
+      this.accInfo(); //重新获取数据
+    });
   },
   watch: {
     "$route.path"() {

@@ -101,9 +101,9 @@ export default {
     async a() {
       let b = await totaldata();
       this.option.xAxis.data = b.xData;
-      console.log(this.option.xAxis);
-      console.log(this.option.xAxis.data);
-      console.log(b.xData);
+      // console.log(this.option.xAxis);
+      // console.log(this.option.xAxis.data);
+      // console.log(b.xData);
     }
   },
   created() {

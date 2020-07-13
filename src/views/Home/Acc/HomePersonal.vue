@@ -12,17 +12,17 @@
         <div>
           管理员头像:
           <el-upload
-            class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            action="http://127.0.0.1:5000/users/avatar_upload"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
-            :submit="ss"
+            class="avatar-uploader"
           >
-            <img v-if="data.imgUrl" :src="data.imgUrl" class="avatar" />
+            <img v-if="imgUrl" :src="imgBeasUrl+imgUrl" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </div>
+        <el-button type="success" @click="checkSend" size="small">确定修改</el-button>
       </div>
     </fragment>
   </div>
@@ -32,30 +32,56 @@
 // 引入卡片
 import fragment from "@/components/Home/fragment.vue";
 // 引入ajax
-import { accountinfo, avatarUpload } from "@/api/account";
+import { avatarUpload, avataredit } from "@/api/account";
 // 引入moment
 import moment from "moment";
 // local
 import local from "@/utils/local";
 export default {
   components: { fragment },
-  methods: {
-    handleAvatarSuccess() {},
-    beforeAvatarUpload() {},
-    ss() {
-      console.log(1);
-    }
-  },
   data() {
     return {
-      data: {}
+      // 个人中心数据
+      data: {},
+      // 图片服务器所在的位置
+      imgBeasUrl: "http://127.0.0.1:5000/upload/imgs/acc_img/",
+      imgUrl: "" //图片名
     };
   },
-  async created() {
-    let accountInfo = await accountinfo();
-    accountInfo.ctime = moment(accountInfo.ctime).format("YYYY-MM-DD HH:mm:ss");
-    this.data = accountInfo;
-    local.set("img", accountInfo.imgUrl);
+  methods: {
+    // 文件上传成功之后执行的函数  参数是响应回来的数据
+    handleAvatarSuccess(res) {
+      if (res.code === 0) {
+        this.$message({ type: "success", message: res.msg });
+        this.imgUrl = res.imgUrl;
+      }
+    },
+
+    // 上传文件之前的函数, 参数为上传文件,主要是对上传文件做修饰 限定大小和限制类型
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === "image/jpeg" || file.type === "image/png";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error("上传头像图片只能是 JPG/PNG 格式!");
+      }
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 2MB!");
+      }
+      return isJPG && isLt2M;
+    },
+
+    // 点击发送数据  修改头像
+    async checkSend() {
+      let { code } = await avataredit({ imgUrl: this.imgUrl });
+
+      if (code === 0) {
+        this.$bus.$emit("updata_avatar");
+      }
+    }
+  },
+  created() {
+    this.data = local.get("user");
   }
 };
 </script>
@@ -73,30 +99,30 @@ export default {
       margin-bottom: 20px;
     }
   }
-
-  // 上传头像
-  .avatar-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-  .avatar-uploader .el-upload:hover {
-    border-color: #409eff;
-  }
-  .avatar-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 178px;
-    height: 178px;
-    line-height: 178px;
-    text-align: center;
-  }
-  .avatar {
-    width: 178px;
-    height: 178px;
-    display: block;
-  }
+}
+// 上传头像
+/deep/.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  margin: 20px 0px;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
+  text-align: center;
+}
+.avatar {
+  width: 120px;
+  height: 120px;
+  display: block;
 }
 </style>

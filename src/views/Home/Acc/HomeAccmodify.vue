@@ -43,7 +43,8 @@ import { ACC_REG, PWD_REG } from "@/utils/reg.js";
 import fragment from "@/components/Home/fragment.vue";
 // ajax
 import { checkoldpwd, editpwd } from "@/api/account";
-
+// local
+import local from "@/utils/local";
 export default {
   components: { fragment },
   data() {
@@ -108,16 +109,16 @@ export default {
             beforeClose: async (action, instance, done) => {
               // 发送ajax 请求修改密码
               let { code } = await editpwd({ newPwd: this.changePwd.newPwd });
-              if (action === "confirm") {
+              if (code === 0) {
                 instance.confirmButtonLoading = true;
                 instance.confirmButtonText = "执行中...";
                 setTimeout(() => {
+                  // 请本地存储
+                  local.clear();
                   // 修改成功后跳到登录页面
                   this.$router.push("/login");
                   done();
                 }, 500);
-              } else {
-                done();
               }
             }
           });

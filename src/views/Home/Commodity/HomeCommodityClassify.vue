@@ -11,24 +11,31 @@
         <!-- 表格 -->
         <el-table ref="singleTable" :data="tableData" highlight-current-row style="width: 100%">
           <el-table-column label="序号" type="index" width="150" prop="id"></el-table-column>
-          <el-table-column
-            property="name"
-            ref="shopName"
-            label="分类名称"
-            width="350"
-            prop="cateName"
-            v-text="122"
-          ></el-table-column>
+          <el-table-column ref="shopName" label="分类名称" width="350">
+            <template slot-scope="scope">
+              <span v-if="!scope.row.isflag">{{scope.row.cateName}}</span>
+              <el-input v-else v-model="scope.row.cateName" size="small"></el-input>
+            </template>
+          </el-table-column>
           <!-- 开关按钮 -->
           <el-table-column label="是否启用" prop="state">
-            <el-tooltip slot-scope="scope">
-              <el-switch v-model="scope.row.state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
-            </el-tooltip>
+            <template slot-scope="scope">
+              <el-switch
+                :disabled="scope.row.isflag? false:true"
+                v-model="scope.row.state"
+                active-color="#13ce66"
+              ></el-switch>
+            </template>
           </el-table-column>
           <!-- 操作 -->
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+              <el-button
+                size="mini"
+                plain
+                :type="scope.row.isflag?'success':'info'"
+                @click="handleEdit(scope.row)"
+              >{{scope.row.isflag? "成功":"编辑"}}</el-button>
               <el-button size="mini" type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
@@ -42,21 +49,17 @@
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
+          style="margin-top:20px"
         ></el-pagination>
 
         <!-- 添加分类 -->
         <el-dialog title="添加分类" :visible.sync="dialogFormVisible" width="500px">
           <el-form :model="form">
-            <el-form-item label="分类名称" :label-width="formLabelWidth">
+            <el-form-item label="分类名称" label-width="120px">
               <el-input v-model="form.inputVal" clearable style="width:260px"></el-input>
             </el-form-item>
-            <el-form-item label="是否启用" :label-width="formLabelWidth">
-              <el-switch
-                @change="switchCheck"
-                v-model="form.state"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
-              ></el-switch>
+            <el-form-item label="是否启用" label-width="120px">
+              <el-switch @change="switchCheck" v-model="form.state" active-color="#13ce66"></el-switch>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -73,13 +76,14 @@
 // 引入模块
 import fragment from "@/components/Home/fragment.vue";
 // ajax
-import { addcate, catelist, delcate } from "@/api/shop";
+import { addcate, catelist, delcate, editcate } from "@/api/shop";
 export default {
   components: { fragment },
   data() {
     return {
       value: true,
       tableData: [],
+
       // 分页
       pageSize: 10,
       currentPage: 1,
@@ -88,10 +92,9 @@ export default {
       // 添加分类 模态框
       dialogFormVisible: false,
       form: {
-        state: true,
+        state: false,
         inputVal: ""
-      },
-      formLabelWidth: "120px"
+      }
     };
   },
   methods: {
@@ -103,6 +106,8 @@ export default {
       // 处理开关
       data.forEach(v => {
         v.state = v.state ? true : false;
+        // 给每条数据添加一个isflag属性  使用该属性  控制 编辑的开关  按钮  分类的状态
+        v.isflag = false;
       });
       this.tableData = data;
       this.total = total;
@@ -119,11 +124,20 @@ export default {
       this.getList();
     },
     // 编辑
-    handleEdit(row) {
-      // this.$refs.shopName.html("<h1></h1>");
-      console.log(row);
-      // var myAfter = Vue.extend({ template: "<p>after</p>" });
-      // new myAfter().$mount().$appendTo(this.$refs.shopName); //after
+    async handleEdit(row) {
+      // 点击切换isflag的状态 来控制可编辑  或者是 不可编辑
+      row.isflag = !row.isflag;
+
+      if (!row.isflag) {
+        // 只有显示为成功状态时  才发送ajax
+        let { code } = await editcate({
+          id: row.id,
+          cateName: row.cateName,
+          state: row.state
+        });
+        // 刷新列表
+        this.getList();
+      }
     },
     // 删除按钮
     handleDelete(id) {

@@ -15,7 +15,7 @@
           </el-form-item>
           <!-- 店铺公告 -->
           <el-form-item label="店铺公告">
-            <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="textarea"></el-input>
+            <el-input type="textarea" :rows="2" v-model="form.bulletin"></el-input>
           </el-form-item>
           <!-- 店铺头像 -->
           <el-form-item label="店铺头像">
@@ -26,49 +26,50 @@
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload"
             >
-              <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+              <img v-if="form.avatar" :src="imgBeasUrl+ form.avatar" class="avatar" />
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
           </el-form-item>
           <!-- 店铺背景墙 -->
           <el-form-item label="店铺头像">
             <el-upload
+              class="avatar-uploader"
               action="https://jsonplaceholder.typicode.com/posts/"
-              list-type="picture-card"
-              :on-preview="handlePictureCardPreview"
-              :on-remove="handleRemove"
+              :show-file-list="false"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+              v-for="(v,i) in form.pics"
+              :key="i"
             >
-              <i class="el-icon-plus"></i>
+              <img v-if="v" :src="imgBeasUrl+ v" class="avatar" />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
-            <el-dialog :visible.sync="dialogVisible">
-              <img width="100%" :src="dialogImageUrl" alt />
-            </el-dialog>
           </el-form-item>
 
           <!-- 配送费 -->
           <el-form-item label="配送费">
-            <el-input v-model="form.name"></el-input>
+            <el-input v-model="form.deliveryPrice"></el-input>
           </el-form-item>
           <!-- 配送时间 -->
           <el-form-item label="配送时间">
-            <el-input v-model="form.name"></el-input>
+            <el-input v-model="form.deliveryTime"></el-input>
           </el-form-item>
           <!-- 配送描述 -->
           <el-form-item label="配送描述">
-            <el-input v-model="form.name"></el-input>
+            <el-input v-model="form.description"></el-input>
           </el-form-item>
 
           <!-- 店铺评分 -->
           <el-form-item label="店铺评分">
-            <el-input v-model="form.name"></el-input>
+            <el-input v-model="form.score"></el-input>
           </el-form-item>
           <!-- 销量 -->
           <el-form-item label="销量">
-            <el-input v-model="form.name"></el-input>
+            <el-input v-model="form.sellCount"></el-input>
           </el-form-item>
           <!-- 活动 -->
           <el-form-item label="活动">
-            <el-checkbox-group v-model="form.type">
+            <el-checkbox-group v-model="form.supports">
               <el-checkbox label="美食/餐厅线上活动" name="type"></el-checkbox>
               <el-checkbox label="地推活动" name="type"></el-checkbox>
               <el-checkbox label="线下主题活动" name="type"></el-checkbox>
@@ -81,7 +82,7 @@
           <el-form-item label="营业时间">
             <el-time-picker
               is-range
-              v-model="value1"
+              v-model="form.date"
               range-separator="至"
               start-placeholder="开始时间"
               end-placeholder="结束时间"
@@ -95,31 +96,16 @@
 </template>
 
 <script>
+// ajax
+import { info, upload, shopEdit } from "@/api/shop";
 import fragment from "@/components/Home/fragment.vue";
 export default {
   components: { fragment },
   data() {
     return {
-      form: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: ""
-      },
-      // 多行文本域
-      textarea: "",
-      // 上传头像
-      imageUrl: "",
-      // 商店照片墙
-      dialogImageUrl: "",
-      dialogVisible: false,
-
-      // 营业时间
-      value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)]
+      form: {},
+      // 图片服务器所在的位置
+      imgBeasUrl: "http://127.0.0.1:5000/upload/shop/"
     };
   },
   methods: {
@@ -150,8 +136,14 @@ export default {
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
-      this.dialogVisible = true;
     }
+  },
+
+  //
+  async created() {
+    let { data } = await info();
+    this.form = data;
+    console.log(data);
   }
 };
 </script>

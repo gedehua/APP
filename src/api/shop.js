@@ -47,3 +47,18 @@ export const edit = (params) => {
 export const del = (params) => {
   return req.get("/goods/del", params);
 };
+
+// 获取商品详情
+export const info = () => {
+  return req.get("/shop/info");
+};
+
+// 店铺图片上传接口
+export const upload = (params) => {
+  return req.post("/shop/upload", params);
+};
+
+// 店铺内容修改
+export const shopEdit = (params) => {
+  return req.post("/shop/edit", params);
+};

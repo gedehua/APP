@@ -5,6 +5,23 @@
       <span slot="title">商品列表</span>
       <!-- 内容 -->
       <div slot="content">
+        <el-row type="flex" class="row-bg" justify="space-around" style="margin:10px 0px 40px">
+          <el-col :span="6">
+            商品名称：
+            <el-input size="small" v-model="shopName" clearable style="width:200px"></el-input>
+          </el-col>
+          <el-col :span="6">
+            商品分类：
+            <el-select v-model="selectData" size="small" clearable>
+              <el-option v-for="(v,i) in options" :key="i" :value="v.cateName"></el-option>
+            </el-select>
+          </el-col>
+          <el-col :span="6">
+            <el-button size="small" @click="inquiryBtn" type="success">查询</el-button>
+          </el-col>
+        </el-row>
+
+        <!-- 表格 -->
         <el-table :data="data" style="width: 100%">
           <el-table-column type="expand">
             <template slot-scope="props">
@@ -22,7 +39,9 @@
                   <span>{{ props.row.price }}</span>
                 </el-form-item>
                 <el-form-item label="商品图片">
-                  <span>{{ props.row.price }}</span>
+                  <span>
+                    <img width="40" height="40" :src="imgBeasUrl+props.row.imgUrl" alt />
+                  </span>
                 </el-form-item>
                 <el-form-item label="创建时间">
                   <span>{{ props.row.ctime }}</span>
@@ -44,7 +63,9 @@
           <el-table-column label="商品价格" prop="price"></el-table-column>
           <!-- 图片 -->
           <el-table-column label="商品图片">
-            <el-image :src="data.imgUrl" lazy></el-image>
+            <template slot-scope="scope">
+              <img width="80" height="80" :src="imgBeasUrl+scope.row.imgUrl" alt />
+            </template>
           </el-table-column>
           <el-table-column label="描述" prop="goodsDesc"></el-table-column>
           <el-table-column label="操作">
@@ -76,21 +97,31 @@
 import fragment from "@/components/Home/fragment.vue";
 
 // 引入ajax
-import { list, del } from "@/api/shop";
+import { list, del, categoriess } from "@/api/shop";
 // 引入moment
 import moment from "moment";
+// ajax
+import local from "@/utils/local";
 export default {
   components: { fragment },
   data() {
     return {
+      // 页面数据
       data: [],
-
       // 分页
       currentPage: 1,
       // 当前页条数
       pageSize: 10,
       // 总条数
-      total: 0
+      total: 0,
+      // 商品名
+      shopName: "",
+      // 下拉框
+      selectData: "",
+      // 下拉框分类
+      options: [],
+      // 图片服务器所在的位置
+      imgBeasUrl: "http://127.0.0.1:5000/upload/imgs/goods_img/"
     };
   },
   methods: {
@@ -98,19 +129,16 @@ export default {
     async getList() {
       let { total, data } = await list({
         currentPage: this.currentPage,
-        pageSize: this.pageSize
+        pageSize: this.pageSize,
+        name: this.shopName,
+        category: this.selectData
       });
 
       // 处理时间
       data.forEach(v => {
         v.ctime = moment(v.ctime).format("YYYY-MM-DD HH:mm:ss");
+        v.goodsDesc = v.goodsDesc.substr(0, 20) + ".".repeat(3);
       });
-
-      // 处理图片
-      // data.forEach(v => {
-      //   v.imgUrl = require(`http://localhost:8080/upload/imgs/acc_img/${v.imgUrl}`);
-      // });
-
       // 渲染数据
       this.data = data;
       // 渲染条数
@@ -146,14 +174,22 @@ export default {
         });
     },
     // 编辑按钮
-    handleEdit() {
+    handleEdit(row) {
+      local.set("shop", row);
       this.$router.push("/home/commodity/list/modify");
+    },
+    // 点击查询按钮
+    inquiryBtn() {
+      this.getList();
     }
   },
 
   // 创建前
-  created() {
+  async created() {
     this.getList();
+    // 渲染分类列表
+    let { categories } = await categoriess();
+    this.options = categories;
   }
 };
 </script>
