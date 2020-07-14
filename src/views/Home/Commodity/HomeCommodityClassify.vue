@@ -129,7 +129,7 @@ export default {
       row.isflag = !row.isflag;
 
       if (!row.isflag) {
-        // 只有显示为成功状态时  才发送ajax
+        // 只有显示为成功状态时  才发送ajax6
         let { code } = await editcate({
           id: row.id,
           cateName: row.cateName,

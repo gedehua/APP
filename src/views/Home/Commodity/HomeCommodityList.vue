@@ -137,7 +137,11 @@ export default {
       // 处理时间
       data.forEach(v => {
         v.ctime = moment(v.ctime).format("YYYY-MM-DD HH:mm:ss");
-        v.goodsDesc = v.goodsDesc.substr(0, 20) + ".".repeat(3);
+        if (v.goodsDesc.length > 15) {
+          v.goodsDesc = v.goodsDesc.substr(0, 20) + ".".repeat(3);
+        } else {
+          v.goodsDesc = v.goodsDesc;
+        }
       });
       // 渲染数据
       this.data = data;

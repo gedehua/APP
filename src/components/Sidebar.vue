@@ -63,7 +63,11 @@ export default {
   methods: {},
   computed: {
     curActive() {
-      return this.$route.path;
+      if (this.$router.path === "/home/order/edit") {
+        return "/home/order/list";
+      } else {
+        return this.$route.path;
+      }
     }
   }
 };

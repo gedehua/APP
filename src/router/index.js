@@ -52,6 +52,7 @@ const routes = [
       },
       {
         path: "/home/order/edit",
+        name: "orderEdit",
         component: () => import("@/views/Home/Order/HomeOrderEdit.vue"),
         meta: { title: "订单编辑" },
       },
