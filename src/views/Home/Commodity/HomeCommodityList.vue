@@ -136,6 +136,7 @@ export default {
 
       // 处理时间
       data.forEach(v => {
+        v.price = "￥" + v.price.toFixed(2);
         v.ctime = moment(v.ctime).format("YYYY-MM-DD HH:mm:ss");
         if (v.goodsDesc.length > 15) {
           v.goodsDesc = v.goodsDesc.substr(0, 20) + ".".repeat(3);
@@ -180,7 +181,7 @@ export default {
     // 编辑按钮
     handleEdit(row) {
       local.set("shop", row);
-      this.$router.push("/home/commodity/list/modify");
+      this.$router.push("/home/commodity/modify");
     },
     // 点击查询按钮
     inquiryBtn() {

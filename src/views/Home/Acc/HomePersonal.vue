@@ -8,7 +8,7 @@
         <p>管理员ID：{{data.id}}</p>
         <p>账号：{{data.account}}</p>
         <p>用户组：{{data.userGroup}}</p>
-        <p class="time">创建时间：{{data.ctime}}</p>
+        <p class="time">创建时间：{{data.ctime | fn}}</p>
         <div>
           管理员头像:
           <el-upload
@@ -82,6 +82,11 @@ export default {
   },
   created() {
     this.data = local.get("user");
+  },
+  filters: {
+    fn(v) {
+      return moment(v).format("YYYY-MM-DD HH:mm:ss");
+    }
   }
 };
 </script>

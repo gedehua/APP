@@ -1,17 +1,10 @@
 <template>
   <div class="app">
-    <!-- <login /> -->
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-import login from "@/views/Login.vue";
-export default {
-  components: {
-    login,
-  },
-};
 </script>
 
 <style lang="less" scoped>

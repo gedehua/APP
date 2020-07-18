@@ -147,8 +147,19 @@ export default {
     handleDelete() {
       // 重置表单
       // 清空本地
-      this.$refs.orderForm.resetFields();
-      this.orderForm = local.remove("shop");
+      this.orderForm = {
+        id: "",
+        orderNo: "",
+        orderTime: [],
+        phone: "",
+        consignee: "",
+        deliverAddress: "",
+        deliveryTime: [],
+        remarks: "",
+        orderAmount: "",
+        orderState: ""
+      };
+      local.remove("row");
     }
   },
 
@@ -156,8 +167,14 @@ export default {
     // console.log(this.$route.query);   //query 路由传参  query 传递的参数会在地址栏显示出来  不适合多数据的传递
     // console.log(this.$route.params); //params 路由传参   params 传递参数 不会在地址栏显示，需要在路由里设置name值 不能刷新  刷新后数据 清零
 
-    // 取数据
-    this.orderForm = local.get("row");
+    // 取数据 有数据才取数据
+    if (local.get("row")) {
+      let arr = local.get("row");
+      arr.orderAmount = Number(
+        arr.orderAmount.substr(1, arr.orderAmount.length)
+      );
+      this.orderForm = arr;
+    }
     if (this.orderForm.orderTime === "Invalid date") {
       this.orderForm.orderTime = "";
     }

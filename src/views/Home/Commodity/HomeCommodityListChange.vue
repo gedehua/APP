@@ -31,7 +31,7 @@
 
           <!-- 商品价格 -->
           <el-form-item label="商品价格" prop="price">
-            <el-input v-model="shopData.price"></el-input>
+            <el-input-number v-model="shopData.price" :min="1" :max="1000"></el-input-number>
           </el-form-item>
 
           <!-- 商品图片地址 -->
@@ -165,6 +165,7 @@ export default {
 
     // 渲染参数
     let a = local.get("shop");
+    a.price = Number(a.price.substr(1, a.price.length));
     // 有值才渲染
     if (a) {
       this.shopData = a;

@@ -1,5 +1,5 @@
 <template>
-  <div class="home-order">
+  <div>
     <div class="home-order-box">
       <!-- 订单号+日期 查询 -->
       <el-form
@@ -42,21 +42,23 @@
         </el-form-item>
         <el-form-item>
           <el-button style="margin-left:20px" @click="queryOrder" size="small" type="primary">查询</el-button>
+          <el-button style="margin-left:20px" size="small" type="info" @click="resetBtn" plain>重置</el-button>
         </el-form-item>
       </el-form>
 
       <!-- 订单列表 -->
-      <el-table :data="tableData" border style="width: 100%" height="250">
-        <el-table-column fixed prop="orderNo" label="订单号" width="120"></el-table-column>
+
+      <el-table :data="tableData" style="width:96%" border max-height="500">
+        <el-table-column fixed prop="orderNo" label="订单号"></el-table-column>
         <el-table-column prop="orderTime" label="下单时间" width="200"></el-table-column>
-        <el-table-column prop="phone" label="手机号" width="120"></el-table-column>
-        <el-table-column prop="consignee" label="收货人" width="120"></el-table-column>
-        <el-table-column prop="deliverAddress" label="配送地址" width="300"></el-table-column>
-        <el-table-column prop="deliveryTime" label="送达时间" width="120"></el-table-column>
-        <el-table-column prop="remarks" label="用户备注" width="120"></el-table-column>
-        <el-table-column prop="orderAmount" label="订单金额" width="120"></el-table-column>
-        <el-table-column prop="orderState" label="订单状态" width="120"></el-table-column>
-        <el-table-column fixed="right" label="操作" width="120">
+        <el-table-column prop="phone" label="手机号" width="200"></el-table-column>
+        <el-table-column prop="consignee" label="收货人"></el-table-column>
+        <el-table-column prop="deliverAddress" label="配送地址" width="200"></el-table-column>
+        <el-table-column prop="deliveryTime" label="送达时间" width="200"></el-table-column>
+        <el-table-column prop="remarks" label="用户备注"></el-table-column>
+        <el-table-column prop="orderAmount" label="订单金额"></el-table-column>
+        <el-table-column prop="orderState" label="订单状态"></el-table-column>
+        <el-table-column fixed="right" label="操作" width="100">
           <template slot-scope="scope">
             <el-button @click="handleClick(scope.row.id)" type="text" size="small">查看</el-button>
             <el-button @click="change(scope.row)" type="text" size="small">编辑</el-button>
@@ -182,7 +184,12 @@ export default {
 
       // 订单详情
       dialogFormVisible: false,
-      form: []
+      form: [],
+
+      // 动态宽度
+      width: {
+        width: ""
+      }
     };
   },
   methods: {
@@ -202,6 +209,7 @@ export default {
       });
       // 处理时间
       data.forEach(v => {
+        v.orderAmount = "￥" + v.orderAmount.toFixed(2);
         v.orderTime = moment(v.orderTime).format("YYYY-MM-DD HH:mm:ss");
         v.deliveryTime = moment(v.deliveryTime).format("YYYY-MM-DD HH:mm:ss");
       });
@@ -222,6 +230,10 @@ export default {
     // 查询按钮订单
     async queryOrder() {
       this.getList();
+    },
+    // 重置按钮
+    resetBtn() {
+      this.query = {};
     },
     // 查看订单详情
     async handleClick(id) {
@@ -255,23 +267,36 @@ export default {
   },
   created() {
     this.getList();
+  },
+  // mounted() {
+  //   // 监听浏览器的宽度
+  //   window.onresize = () => {
+  //     return (() => {
+  //       this.width.width = document.body.clientWidth - 360 + "px";
+  //       console.log(this.width.width);
+  //     })();
+  //   };
+  // }
+
+  // // 计算属性
+  computed: {
+    "width.width"() {
+      return {
+        width: document.body.clientWidth - 400 + "px"
+      };
+    }
   }
 };
 </script>
 
 <style lang="less" scoped>
-.home-order {
+.home-order-box {
+  flex: 1;
   display: flex;
   height: 100%;
-  width: 100%;
+  // width: 100%;
+  flex-direction: column;
+  background: #fff;
   padding-bottom: 40px;
-  .home-order-box {
-    height: 100%;
-    display: flex;
-    width: 1400px;
-    flex-direction: column;
-    background: #fff;
-    padding-bottom: 30px;
-  }
 }
 </style>

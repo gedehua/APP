@@ -35,8 +35,14 @@
                 plain
                 :type="scope.row.isflag?'success':'info'"
                 @click="handleEdit(scope.row)"
+                :disabled="scope.row.isDisabel"
               >{{scope.row.isflag? "成功":"编辑"}}</el-button>
-              <el-button size="mini" type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
+              <el-button
+                size="mini"
+                type="danger"
+                @click="handleDelete(scope.row.id)"
+                :disabled="scope.row.isDisabel"
+              >删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -108,6 +114,7 @@ export default {
         v.state = v.state ? true : false;
         // 给每条数据添加一个isflag属性  使用该属性  控制 编辑的开关  按钮  分类的状态
         v.isflag = false;
+        v.isDisabel = false;
       });
       this.tableData = data;
       this.total = total;
@@ -125,6 +132,10 @@ export default {
     },
     // 编辑
     async handleEdit(row) {
+      this.tableData.forEach(v => {
+        v.isDisabel = true;
+      });
+      row.isDisabel = !row.isDisabel;
       // 点击切换isflag的状态 来控制可编辑  或者是 不可编辑
       row.isflag = !row.isflag;
 

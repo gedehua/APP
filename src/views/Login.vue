@@ -22,6 +22,7 @@
             :suffix-icon="isOpen?'iconfont icon-yanjing':'iconfont icon-yanjing1'"
             autocomplete="off"
             @click.native="isPwd"
+            @keydown.native.enter="submitForm"
           ></el-input>
         </el-form-item>
         <!-- 登录按钮 -->
@@ -34,6 +35,7 @@
 </template>
 
 <script>
+import { PrivilegeRouting } from "@/router";
 // 引入接口层
 import { checkLogin } from "@/api/account";
 // 引入local
@@ -92,11 +94,13 @@ export default {
         let { code, msg, role, token } = await checkLogin(this.loginForm);
 
         if (code === 0) {
-          // 登录成功
-          this.$router.push("/home"); //跳转到后台首页
           // 将token令牌存到本地存储
           local.set("t_k", token);
           local.set("pwd", this.loginForm.password);
+          local.set("role", role);
+          PrivilegeRouting();
+          // 登录成功
+          this.$router.push("/home"); //跳转到后台首页
         }
       });
     }
@@ -112,7 +116,7 @@ export default {
 .login {
   height: 100%;
   width: 100%;
-  background: url("../assets/imgs/xinkong.jpg") no-repeat;
+  background: url("../assets/imgs/login.jpg") no-repeat;
   background-size: 100% 100%;
   display: flex;
   flex-direction: column;
@@ -125,7 +129,7 @@ export default {
     justify-content: center;
     align-items: center;
     h3 {
-      color: #fff;
+      color: rgb(33, 55, 56);
       letter-spacing: 6px;
       margin-bottom: 30px;
       font-size: 26px;
@@ -135,12 +139,17 @@ export default {
     .el-form {
       width: 400px;
       /deep/.el-form-item__label {
-        color: #fff;
+        color: rgb(33, 55, 56);
       }
 
       /deep/.el-input__inner {
+        border: 1px solid rgb(84, 119, 121);
         background: transparent;
-        color: #fff;
+        color: rgb(33, 55, 56);
+      }
+      /deep/.el-input__prefix,
+      /deep/.el-input__suffix {
+        color: rgb(33, 55, 56);
       }
       .el-button {
         margin-top: 10px;

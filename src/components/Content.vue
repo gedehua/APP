@@ -1,5 +1,5 @@
 <template>
-  <div class="Content">
+  <div class="Content" :style="width">
     <!-- 面包屑盒子 -->
     <el-row>
       <!-- 面包屑 -->
@@ -14,7 +14,7 @@
         <!-- 下拉菜单 -->
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">
-            {{user}}
+            <span ref="text">{{user}}</span>
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
@@ -43,7 +43,11 @@ export default {
       // 面包屑数组
       crumbsArr: [],
       user: "", //用户名
-      imgUrl: "" //头像
+      imgUrl: "", //头像
+      // 动态宽度
+      width: {
+        width: ""
+      }
     };
   },
   methods: {
@@ -54,9 +58,10 @@ export default {
         this.$router.push("/home/acc/personal");
       } else if (command === "b") {
         // 退出系统
-        this.$message({ message: "欢迎下次再来,哥哥", type: "success" });
+        this.$message({ message: "欢迎下次再来", type: "success" });
         local.clear(); // 清除本地
         this.$router.push("/login"); // 跳转到登录
+        location.reload();
       }
     },
     // 面包屑
@@ -84,6 +89,19 @@ export default {
       this.imgUrl = user.imgUrl;
       // 把数据存到本地
       local.set("user", user);
+    },
+
+    // 定义一个函数随机颜色
+    color() {
+      let arr = ["#1abc9c", "#f1c40f", "#9b59b6", "#f39c12", "#51627a"];
+      if (this.$refs.text) {
+        let a = setInterval(() => {
+          let i = Math.floor(Math.random() * arr.length);
+          this.$refs.text.style.color = arr[i];
+        }, 500);
+      } else {
+        clearInterval(a);
+      }
     }
   },
   created() {
@@ -103,6 +121,17 @@ export default {
     "$route.path"() {
       this.routerChange();
     }
+  },
+  mounted() {
+    // 监听浏览器的宽度
+    window.onresize = () => {
+      return (() => {
+        this.width.width = document.body.clientWidth - 360 + "px";
+        // console.log(this.width.width);
+      })();
+    };
+
+    this.color();
   }
 };
 </script>
@@ -126,11 +155,17 @@ export default {
         width: 50px;
         margin-left: 20px;
       }
+
+      .el-dropdown-link {
+        font-weight: 600;
+        // letter-spacing: 1px;
+        font-size: 18px;
+      }
     }
   }
   .box {
     flex: 1;
-    background-color: rgb(240, 242, 245);
+    background-color: rgb(232, 234, 235);
     overflow-y: scroll;
     padding: 20px;
     box-sizing: border-box;

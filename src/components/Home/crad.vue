@@ -1,26 +1,51 @@
 <template>
-  <el-col :span="5"
-    ><div class="grid-content ">
+  <el-col :span="5">
+    <div class="grid-content">
       <p class="crad-left">
-        <span :class="data.imgUrl"></span>
+        <span :class=" 'iconfont '+ data.imgUrl" :style="data.color"></span>
       </p>
       <div class="crad-right">
         <p class="text">{{ data.title }}</p>
         <p>
-          <b>{{ data.dataNum }}</b>
+          <b>{{ data.dataNum | fn() }}</b>
         </p>
       </div>
-    </div></el-col
-  >
+    </div>
+  </el-col>
 </template>
 
 <script>
 export default {
   props: {
     data: {
-      type: Object,
-    },
+      type: Object
+    }
   },
+
+  // 过滤
+  filters: {
+    fn(e) {
+      if (typeof e === "number") {
+        let b = e + "";
+        let len = b.length;
+        if (len <= 3) {
+          return b;
+        }
+        let r = len % 3;
+        return r > 0
+          ? b.slice(0, r) +
+              "," +
+              b
+                .slice(r, len)
+                .match(/\d{3}/g)
+                .join(",")
+          : b
+              .slice(r, len)
+              .match(/\d{3}/g)
+              .join(",");
+      }
+    }
+  }
 };
 </script>
 
@@ -37,7 +62,7 @@ export default {
 
   display: flex;
   .crad-left {
-    flex: 1;
+    flex: 0 0 140px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -48,7 +73,7 @@ export default {
     }
   }
   .crad-right {
-    flex: 0 0 100px;
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -57,7 +82,7 @@ export default {
     .text {
       font-size: 17px;
       //   margin-bottom: 5px;
-      color: #ccc;
+      color: #808080;
     }
     b {
       font-size: 14px;

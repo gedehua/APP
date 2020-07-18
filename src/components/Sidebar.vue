@@ -8,66 +8,74 @@
       text-color="#fff"
       active-text-color="#ffd04b"
     >
-      <h5 class="h5-title">外卖商家中心</h5>
-      <!-- 后台首页 -->
-      <el-menu-item index="/home/index">
-        <i class="el-icon-s-home"></i>
-        <span slot="title">后台首页</span>
-      </el-menu-item>
-      <!-- 订单管理 -->
-      <el-menu-item index="/home/order/list">
-        <i class="el-icon-document"></i>
-        <span slot="title">订单管理</span>
-      </el-menu-item>
-      <!-- 商品管理 -->
-      <el-submenu index="/home/commodity">
-        <template slot="title">
-          <i class="el-icon-box"></i>
-          <span>商品管理</span>
-        </template>
-        <el-menu-item index="/home/commodity/list">商品列表</el-menu-item>
-        <el-menu-item index="/home/commodity/add">商品添加</el-menu-item>
-        <el-menu-item index="/home/commodity/classify">商品分类</el-menu-item>
-      </el-submenu>
-      <!-- 店铺管理 -->
-      <el-menu-item index="/home/shop">
-        <i class="el-icon-s-shop"></i>
-        <span slot="title">店铺管理</span>
-      </el-menu-item>
-      <!-- 账号管理 -->
-      <el-submenu index="/home/acc">
-        <template slot="title">
-          <i class="el-icon-user-solid"></i>
-          <span>账号管理</span>
-        </template>
-        <el-menu-item index="/home/acc/list">账号列表</el-menu-item>
-        <el-menu-item index="/home/acc/add">添加账号</el-menu-item>
-        <el-menu-item index="/home/acc/modify">修改密码</el-menu-item>
-        <el-menu-item index="/home/acc/personal">个人中心</el-menu-item>
-      </el-submenu>
-      <!-- 销售统计 -->
-      <el-submenu index="/home/sale">
-        <template slot="title">
-          <i class="el-icon-pie-chart"></i>
-          <span>销售统计</span>
-        </template>
-        <el-menu-item index="/home/sale/shop">商品统计</el-menu-item>
-        <el-menu-item index="/home/sale/order">订单统计</el-menu-item>
-      </el-submenu>
+      <h5 class="h5-title">
+        <i class="iconfont icon-Key_system"></i> 外卖商家中心
+      </h5>
+      <template v-for="item in menus">
+        <!-- 一级导航 -->
+        <el-menu-item
+          :key="item.path"
+          :index="item.children && item.children.length && item.children[0].path !== ''? item.children[0].path : item.path"
+          v-if="item.children && item.children.length === 1 || item.path =='/home/order'"
+        >
+          <i class="iconfont" :class="item.meta.icon"></i>
+          <span slot="title">{{item.meta.title}}</span>
+        </el-menu-item>
+
+        <!-- 二级导航 -->
+        <el-submenu
+          :index="item.path"
+          :key="item.path"
+          v-else-if="item.children && item.children.length > 1 || item.children.path =='/home/commodity/list'"
+        >
+          <template slot="title">
+            <i class="iconfont" :class="item.meta.icon"></i>
+            <span>{{item.meta.title}}</span>
+          </template>
+          <el-menu-item
+            v-for="v in item.children"
+            :key="v.path"
+            :index="v.path"
+          >{{v.meta.title | fn}}</el-menu-item>
+        </el-submenu>
+      </template>
     </el-menu>
   </div>
 </template>
 
 <script>
+import local from "@/utils/local.js";
 export default {
+  data() {
+    return {
+      menus: []
+    };
+  },
   methods: {},
+  created() {
+    // 从本地拿取
+    this.menus = local.get("menus");
+  },
   computed: {
     curActive() {
-      if (this.$router.path === "/home/order/edit") {
-        return "/home/order/list";
-      } else {
-        return this.$route.path;
+      if (this.$route.path === "/home/order/edit") return "/home/order/list";
+      if (this.$route.path === "/home/commodity/list/modify")
+        return "/home/commodity/list";
+      return this.$route.path;
+    }
+  },
+  filters: {
+    fn(a) {
+      // console.log(a);
+      if (a === "修改商品") {
+        // a = "";
+        // console.log(this.menus);
+        // console.log(menus);
+        console.log(a);
+        // console.log(1);
+        // a = "";
       }
+      return a;
     }
   }
 };
@@ -84,8 +92,17 @@ export default {
   font-size: 20px;
   color: #fff;
   font-weight: normal;
+
+  .iconfont {
+    margin: 0px;
+  }
 }
 .is-active {
   color: #409eff !important ;
+}
+/deep/.iconfont {
+  font-size: 20px;
+  margin: 0px 12px;
+  color: rgb(231, 230, 230);
 }
 </style>
